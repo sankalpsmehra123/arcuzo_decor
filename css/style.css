@@ -940,11 +940,230 @@ p + p { margin-top: 0.75rem; }
   color: var(--text);
 }
 
-.finishes-image img {
+/* ── FINISHES PALETTE SHOWCASE ──────────────────────────────── */
+.palette-showcase {
+  background: var(--off-white);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.palette-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.palette-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--green);
+}
+
+.palette-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-top: 0.15rem;
+}
+
+.palette-subtext {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+}
+
+.palette-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.palette-filter-btn {
+  appearance: none;
+  border: 1px solid rgba(26, 46, 74, 0.15);
+  background: var(--white);
+  color: var(--navy);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.775rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.palette-filter-btn:hover {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+}
+
+.palette-filter-btn.active {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+  box-shadow: 0 2px 6px rgba(26, 46, 74, 0.2);
+}
+
+.swatches-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.swatch-card {
+  appearance: none;
+  background: var(--white);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.25s ease;
+  position: relative;
+  outline: none;
+}
+
+.swatch-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--navy);
+  box-shadow: var(--shadow-sm);
+}
+
+.swatch-card:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.swatch-card.active {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px var(--green), 0 4px 12px rgba(61, 181, 74, 0.25);
+  transform: translateY(-2px);
+}
+
+.swatch-card.is-hidden {
+  display: none;
+}
+
+.swatch-color {
   width: 100%;
-  object-fit: cover;
+  height: 52px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.swatch-color--light {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+.swatch-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.45rem;
+}
+
+.swatch-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.swatch-tag {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tag-metallic {
+  color: #a07828;
+}
+
+.tag-textured {
+  color: #8e4336;
+}
+
+.tag-glossymatt {
+  color: #1a2e4a;
+}
+
+.palette-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.palette-preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  background: var(--white);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.preview-chip {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  transition: background 0.3s ease;
+}
+
+.preview-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.preview-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.preview-meta {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.palette-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .swatches-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .swatches-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* ── CLIENTS ────────────────────────────────────────────────── */

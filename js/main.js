@@ -298,3 +298,51 @@ if (!prefersReducedMotion) {
     el.classList.add('visible');
   });
 }
+
+/* ── Finishes Interactive Palette ────────────────────────────── */
+const paletteShowcase = document.getElementById('palette-showcase');
+
+if (paletteShowcase) {
+  const filterBtns = paletteShowcase.querySelectorAll('.palette-filter-btn');
+  const swatchCards = paletteShowcase.querySelectorAll('.swatch-card');
+  const previewChip = document.getElementById('palette-preview-chip');
+  const previewName = document.getElementById('palette-preview-name');
+  const previewMeta = document.getElementById('palette-preview-meta');
+
+  // Filter button clicks
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filter = btn.dataset.filter;
+
+      swatchCards.forEach((card) => {
+        if (filter === 'all' || card.dataset.category === filter) {
+          card.classList.remove('is-hidden');
+        } else {
+          card.classList.add('is-hidden');
+        }
+      });
+    });
+  });
+
+  // Swatch card clicks
+  swatchCards.forEach((card) => {
+    card.addEventListener('click', () => {
+      swatchCards.forEach((c) => c.classList.remove('active'));
+      card.classList.add('active');
+
+      const name = card.dataset.name;
+      const finish = card.dataset.finish;
+      const desc = card.dataset.desc;
+      const bg = card.dataset.bg;
+
+      if (previewName) previewName.textContent = name;
+      if (previewMeta) previewMeta.textContent = `${finish} • ${desc}`;
+      if (previewChip && bg) {
+        previewChip.style.background = bg;
+      }
+    });
+  });
+}
