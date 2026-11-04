@@ -9,6 +9,8 @@
 const header       = document.getElementById('site-header');
 const hamburger    = document.getElementById('hamburger');
 const mainNav      = document.getElementById('main-nav');
+const siteMain     = document.getElementById('main');
+const siteFooter   = document.getElementById('site-footer');
 const enquiryForm  = document.getElementById('enquiry-form');
 const formNotice   = document.getElementById('form-notice');
 
@@ -25,16 +27,24 @@ window.addEventListener('scroll', handleHeaderScroll, { passive: true });
 handleHeaderScroll(); // run on load
 
 /* ── Mobile Navigation Toggle ───────────────────────────────── */
+function setBackgroundInert(isInert) {
+  [siteMain, siteFooter].forEach((el) => {
+    if (el) el.inert = isInert;
+  });
+}
+
 function openNav() {
   mainNav.classList.add('open');
   hamburger.setAttribute('aria-expanded', 'true');
   document.body.style.overflow = 'hidden'; // prevent background scroll
+  setBackgroundInert(true);
 }
 
 function closeNav() {
   mainNav.classList.remove('open');
   hamburger.setAttribute('aria-expanded', 'false');
   document.body.style.overflow = '';
+  setBackgroundInert(false);
 }
 
 hamburger.addEventListener('click', () => {
@@ -72,6 +82,11 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Close the mobile nav if the viewport grows to the desktop layout
+window.matchMedia('(min-width: 769px)').addEventListener('change', (e) => {
+  if (e.matches) closeNav();
+});
+
 /* ── Smooth Scroll for Anchor Links ─────────────────────────── */
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', (e) => {
@@ -92,34 +107,6 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
       targetEl.setAttribute('tabindex', '-1');
     }
     targetEl.focus({ preventScroll: true });
-  });
-});
-
-/* ── Product Card Expand / Collapse ─────────────────────────── */
-document.querySelectorAll('.btn-expand').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const controlsId = btn.getAttribute('aria-controls');
-    const panel      = document.getElementById(controlsId);
-    if (!panel) return;
-
-    const isExpanded = btn.getAttribute('aria-expanded') === 'true';
-
-    if (isExpanded) {
-      // Collapse
-      btn.setAttribute('aria-expanded', 'false');
-      panel.hidden = true;
-    } else {
-      // Expand
-      btn.setAttribute('aria-expanded', 'true');
-      panel.hidden = false;
-      // Smooth scroll to reveal specs if partially off-screen
-      setTimeout(() => {
-        const rect = panel.getBoundingClientRect();
-        if (rect.bottom > window.innerHeight) {
-          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      }, 50);
-    }
   });
 });
 
@@ -273,9 +260,9 @@ const prefersReducedMotion = window.matchMedia(
   '(prefers-reduced-motion: reduce)'
 ).matches;
 
-if (!prefersReducedMotion) {
-  const fadeEls = document.querySelectorAll('.fade-in');
+const fadeEls = document.querySelectorAll('.fade-in');
 
+if (!prefersReducedMotion && 'IntersectionObserver' in window) {
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -293,8 +280,8 @@ if (!prefersReducedMotion) {
 
   fadeEls.forEach((el) => observer.observe(el));
 } else {
-  // If reduced motion is preferred, make all fade-in elements immediately visible
-  document.querySelectorAll('.fade-in').forEach((el) => {
+  // Reduced motion (or no IntersectionObserver): show everything immediately
+  fadeEls.forEach((el) => {
     el.classList.add('visible');
   });
 }

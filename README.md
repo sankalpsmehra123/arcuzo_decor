@@ -1,6 +1,6 @@
 # Arcuzo Decor – AlupPure Website
 
-A production-quality single-page lead-generation website for **Arcuzo Decor Pvt. Ltd.**, makers of the **AlupPure** range of intelligent German aluminium windows, doors and façade systems.
+A production-quality multi-page lead-generation website for **Arcuzo Decor Pvt. Ltd.**, makers of the **AlupPure** range of intelligent German aluminium windows, doors and façade systems.
 
 ---
 
@@ -8,7 +8,9 @@ A production-quality single-page lead-generation website for **Arcuzo Decor Pvt.
 
 ```
 arcuzo_decor/
-├── index.html            ← Single-page website (all sections)
+├── index.html            ← Home page (all main sections)
+├── residentialproject.html ← Residential project listing
+├── commercialproject.html  ← Commercial project listing
 ├── css/
 │   └── style.css         ← Full responsive stylesheet
 ├── js/
@@ -21,6 +23,8 @@ arcuzo_decor/
 └── README.md             ← This file
 ```
 
+The home page presents two large "Our Work" cards — Residential Projects and Commercial Projects — each linking to its own detail page (`residentialproject.html` / `commercialproject.html`).
+
 ---
 
 ## Local Preview
@@ -28,8 +32,8 @@ arcuzo_decor/
 ### Option 1 – Python HTTP server (built into macOS / Linux)
 
 ```bash
-cd /Volumes/PROJECTS/freelance/arcuzo_decor
-python3 -m http.server 8000
+cd arcuzo_decor
+python -m http.server 8000      # use python3 on macOS / Linux
 ```
 
 Then open: [http://localhost:8000](http://localhost:8000)
@@ -150,18 +154,20 @@ fetch('https://your-api-endpoint.com/enquiry', {
 
 ## Asset Sources
 
-All images and video were supplied by the client from their AlupPure product brochure (shared via WhatsApp).
+Most images and the video were supplied by the client from their AlupPure product brochure (shared via WhatsApp). The first eight product-card images under `assets/images/products/` were downloaded from the client's previous Alupure website (alupure.co.in) and resized to 1000px wide. The four newer product images — `shower-enclosure.jpg`, `glass-railing.jpg`, `walkable-skylight.jpg` and `curtain-wall-system.jpg` — are temporary copies of the project sample images and should be replaced with real product photography. The eight images under `assets/images/projects/` are temporary generated samples, pending the client's actual project photography.
+
+> **Note:** the brochure JPEGs are phone photographs of the printed brochure — several are rotated 90° and include hands, page curl and reflections. They are placeholders until clean source photography is supplied. Thirteen files (`about-brochure`, `clients`, `colour-finishes`, `contact-info`, `features`, `opulenz-specs`, `sliding-specs`, `majestic-specs`, `door-system`, `apc40-windows`, `projects-1`, `opulenz-house`, `sliding-bedroom`) are currently unused.
 
 | File | Description |
 |------|-------------|
 | `assets/images/hero-house.jpeg` | Night-lit luxury house (hero background) |
-| `assets/images/quality-habit.jpeg` | Glass curtain wall building / about section |
+| `assets/images/quality-habit.jpeg` | Glass curtain wall building / Who We Are block in Why Us |
 | `assets/images/about-brochure.jpeg` | AlupPure brochure about page |
-| `assets/images/projects-1.jpeg` | Residential project – Janpath, Ludhiana |
+| `assets/images/projects-1.jpeg` | Residential project – Janpath, Ludhiana (currently unused) |
 | `assets/images/features.jpeg` | Salient features brochure page |
-| `assets/images/opulenz-house.jpeg` | OPULENZ Sliding System villa |
+| `assets/images/opulenz-house.jpeg` | OPULENZ Sliding System villa (currently unused) |
 | `assets/images/opulenz-specs.jpeg` | OPULENZ specs diagram |
-| `assets/images/sliding-bedroom.jpeg` | 109mm Sliding System bedroom interior |
+| `assets/images/sliding-bedroom.jpeg` | 109mm Sliding System bedroom interior (currently unused) |
 | `assets/images/sliding-specs.jpeg` | 109mm sliding specs diagram |
 | `assets/images/majestic-specs.jpeg` | MAJESTIC Sliding System specs |
 | `assets/images/door-system.jpeg` | Door System profile diagram |
@@ -169,6 +175,26 @@ All images and video were supplied by the client from their AlupPure product bro
 | `assets/images/colour-finishes.jpeg` | Colour &amp; finish swatches |
 | `assets/images/clients.jpeg` | Client logos page |
 | `assets/images/contact-info.jpeg` | Contact back page with map |
+| `assets/images/products/windows-casement.jpg` | Casement Windows product card |
+| `assets/images/products/windows-sliding.jpg` | Sliding Windows product card |
+| `assets/images/products/doors-casement.jpg` | Casement Doors product card |
+| `assets/images/products/doors-sliding.jpg` | Sliding Doors product card |
+| `assets/images/products/premium-sliding-folding.jpg` | Sliding Folding Doors product card |
+| `assets/images/products/premium-opulenz.jpg` | Opulenz – Slim Interlock Sliding Doors product card |
+| `assets/images/products/premium-majestic.jpg` | Majestic – Sleek Interlock Sliding Doors product card |
+| `assets/images/products/premium-grande.jpg` | Grande – Premium Casement Doors product card |
+| `assets/images/products/shower-enclosure.jpg` | Shower Enclosure product card (temporary sample) |
+| `assets/images/products/glass-railing.jpg` | Glass Railing product card (temporary sample) |
+| `assets/images/products/walkable-skylight.jpg` | Walkable Skylight product card (temporary sample) |
+| `assets/images/products/curtain-wall-system.jpg` | Double Height Curtain Wall System product card (temporary sample) |
+| `assets/images/projects/residential-courtyard-house.jpg` | Sample placeholder – The Courtyard House |
+| `assets/images/projects/residential-lakeside-residence.jpg` | Sample placeholder – Lakeside Residence |
+| `assets/images/projects/residential-skyline-penthouse.jpg` | Sample placeholder – Skyline Penthouse |
+| `assets/images/projects/residential-hilltop-retreat.jpg` | Sample placeholder – Hilltop Retreat |
+| `assets/images/projects/commercial-corporate-headquarters.jpg` | Sample placeholder – Corporate Headquarters |
+| `assets/images/projects/commercial-business-park.jpg` | Sample placeholder – Business Park |
+| `assets/images/projects/commercial-retail-pavilion.jpg` | Sample placeholder – Retail Pavilion |
+| `assets/images/projects/commercial-hotel-atrium.jpg` | Sample placeholder – Hotel Atrium |
 | `assets/video/hero-reel.mp4` | Brand video reel (hero background) |
 
 ---
@@ -185,6 +211,7 @@ The following items are noted for completion before the site goes live:
 | 4 | **OG / Social meta tags** | `<head>` in `index.html` | Add `og:title`, `og:description`, `og:image`, `og:url`, and `twitter:card` tags for social sharing previews. |
 | 5 | **Google Analytics** | `<head>` or before `</body>` | Add your GA4 tracking snippet if analytics are required. |
 | 6 | **SSL / HTTPS** | Hosting platform | Ensure SSL is enabled (all major hosts do this automatically for custom domains). |
+| 7 | **Photography** | `assets/images/` | Replace the remaining brochure photographs (rotated, hands/reflections visible) with clean architectural images. The first eight `assets/images/products/` cards use clean imagery from the old Alupure site; the four newer product cards (shower enclosure, glass railing, walkable skylight, curtain wall) reuse project sample images temporarily. The eight `assets/images/projects/` cards use temporary sample images and should be swapped for the client's actual project photography. |
 
 ---
 
@@ -193,6 +220,8 @@ The following items are noted for completion before the site goes live:
 Run through this list before making the site public:
 
 - [ ] Favicon created and linked in `<head>`
+- [ ] Brochure photographs replaced with clean, correctly oriented source images
+- [ ] Temporary project sample images replaced on the home page and both project detail pages
 - [ ] All images optimised (compress with [Squoosh](https://squoosh.app) or similar; target < 200 KB each)
 - [ ] Hero video compressed (target < 8 MB; use HandBrake or FFmpeg: `ffmpeg -i hero-reel.mp4 -vcodec libx264 -crf 28 -preset slow hero-reel-opt.mp4`)
 - [ ] Form backend connected and tested (receive a real submission)
