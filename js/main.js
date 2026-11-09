@@ -333,3 +333,85 @@ if (paletteShowcase) {
     });
   });
 }
+
+/* ── Photo Lightbox ──────────────────────────────────────────── */
+const photoLightbox  = document.getElementById('photo-lightbox');
+const galleryLinks   = document.querySelectorAll('.project-gallery .gallery-link');
+
+if (photoLightbox && galleryLinks.length) {
+  const lightboxImage   = photoLightbox.querySelector('.lightbox-image');
+  const lightboxCaption = photoLightbox.querySelector('.lightbox-caption');
+  const closeBtn        = photoLightbox.querySelector('.lightbox-close');
+  const prevBtn         = photoLightbox.querySelector('.lightbox-prev');
+  const nextBtn         = photoLightbox.querySelector('.lightbox-next');
+
+  let currentIndex = 0;
+  let lastFocused  = null;
+
+  function showPhoto(index) {
+    currentIndex = (index + galleryLinks.length) % galleryLinks.length;
+    const link = galleryLinks[currentIndex];
+    const thumb = link.querySelector('img');
+
+    lightboxImage.src = link.getAttribute('href');
+    lightboxImage.alt = thumb ? thumb.alt : '';
+    lightboxCaption.textContent = `${currentIndex + 1} / ${galleryLinks.length}`;
+  }
+
+  function openPhoto(index, trigger) {
+    lastFocused = trigger || document.activeElement;
+    showPhoto(index);
+    photoLightbox.hidden = false;
+    document.body.classList.add('lightbox-open');
+    closeBtn.focus();
+  }
+
+  function closePhoto() {
+    photoLightbox.hidden = true;
+    document.body.classList.remove('lightbox-open');
+    lightboxImage.removeAttribute('src');
+    if (lastFocused) lastFocused.focus();
+  }
+
+  galleryLinks.forEach((link, index) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      openPhoto(index, link);
+    });
+  });
+
+  closeBtn.addEventListener('click', closePhoto);
+  prevBtn.addEventListener('click', () => showPhoto(currentIndex - 1));
+  nextBtn.addEventListener('click', () => showPhoto(currentIndex + 1));
+
+  // Clicking the dark backdrop (not the image or controls) closes the viewer
+  photoLightbox.addEventListener('click', (e) => {
+    if (e.target === photoLightbox) closePhoto();
+  });
+
+  // Keyboard: Esc closes, arrow keys move between photos, Tab stays inside
+  photoLightbox.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      const controls = [closeBtn, prevBtn, nextBtn];
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      closePhoto();
+    } else if (e.key === 'ArrowLeft') {
+      showPhoto(currentIndex - 1);
+    } else if (e.key === 'ArrowRight') {
+      showPhoto(currentIndex + 1);
+    }
+  });
+}
