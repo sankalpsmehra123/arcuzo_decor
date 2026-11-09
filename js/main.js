@@ -9,6 +9,8 @@
 const header       = document.getElementById('site-header');
 const hamburger    = document.getElementById('hamburger');
 const mainNav      = document.getElementById('main-nav');
+const siteMain     = document.getElementById('main');
+const siteFooter   = document.getElementById('site-footer');
 const enquiryForm  = document.getElementById('enquiry-form');
 const formNotice   = document.getElementById('form-notice');
 
@@ -25,16 +27,24 @@ window.addEventListener('scroll', handleHeaderScroll, { passive: true });
 handleHeaderScroll(); // run on load
 
 /* ── Mobile Navigation Toggle ───────────────────────────────── */
+function setBackgroundInert(isInert) {
+  [siteMain, siteFooter].forEach((el) => {
+    if (el) el.inert = isInert;
+  });
+}
+
 function openNav() {
   mainNav.classList.add('open');
   hamburger.setAttribute('aria-expanded', 'true');
   document.body.style.overflow = 'hidden'; // prevent background scroll
+  setBackgroundInert(true);
 }
 
 function closeNav() {
   mainNav.classList.remove('open');
   hamburger.setAttribute('aria-expanded', 'false');
   document.body.style.overflow = '';
+  setBackgroundInert(false);
 }
 
 hamburger.addEventListener('click', () => {
@@ -72,6 +82,11 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Close the mobile nav if the viewport grows to the desktop layout
+window.matchMedia('(min-width: 769px)').addEventListener('change', (e) => {
+  if (e.matches) closeNav();
+});
+
 /* ── Smooth Scroll for Anchor Links ─────────────────────────── */
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', (e) => {
@@ -92,34 +107,6 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
       targetEl.setAttribute('tabindex', '-1');
     }
     targetEl.focus({ preventScroll: true });
-  });
-});
-
-/* ── Product Card Expand / Collapse ─────────────────────────── */
-document.querySelectorAll('.btn-expand').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const controlsId = btn.getAttribute('aria-controls');
-    const panel      = document.getElementById(controlsId);
-    if (!panel) return;
-
-    const isExpanded = btn.getAttribute('aria-expanded') === 'true';
-
-    if (isExpanded) {
-      // Collapse
-      btn.setAttribute('aria-expanded', 'false');
-      panel.hidden = true;
-    } else {
-      // Expand
-      btn.setAttribute('aria-expanded', 'true');
-      panel.hidden = false;
-      // Smooth scroll to reveal specs if partially off-screen
-      setTimeout(() => {
-        const rect = panel.getBoundingClientRect();
-        if (rect.bottom > window.innerHeight) {
-          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      }, 50);
-    }
   });
 });
 
@@ -273,9 +260,9 @@ const prefersReducedMotion = window.matchMedia(
   '(prefers-reduced-motion: reduce)'
 ).matches;
 
-if (!prefersReducedMotion) {
-  const fadeEls = document.querySelectorAll('.fade-in');
+const fadeEls = document.querySelectorAll('.fade-in');
 
+if (!prefersReducedMotion && 'IntersectionObserver' in window) {
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -293,8 +280,260 @@ if (!prefersReducedMotion) {
 
   fadeEls.forEach((el) => observer.observe(el));
 } else {
-  // If reduced motion is preferred, make all fade-in elements immediately visible
-  document.querySelectorAll('.fade-in').forEach((el) => {
+  // Reduced motion (or no IntersectionObserver): show everything immediately
+  fadeEls.forEach((el) => {
     el.classList.add('visible');
+  });
+}
+
+/* ── Finishes Interactive Palette ────────────────────────────── */
+const paletteShowcase = document.getElementById('palette-showcase');
+
+if (paletteShowcase) {
+  const filterBtns = paletteShowcase.querySelectorAll('.palette-filter-btn');
+  const swatchCards = paletteShowcase.querySelectorAll('.swatch-card');
+  const previewChip = document.getElementById('palette-preview-chip');
+  const previewName = document.getElementById('palette-preview-name');
+  const previewMeta = document.getElementById('palette-preview-meta');
+
+  // Filter button clicks
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filter = btn.dataset.filter;
+
+      swatchCards.forEach((card) => {
+        if (filter === 'all' || card.dataset.category === filter) {
+          card.classList.remove('is-hidden');
+        } else {
+          card.classList.add('is-hidden');
+        }
+      });
+    });
+  });
+
+  // Swatch card clicks
+  swatchCards.forEach((card) => {
+    card.addEventListener('click', () => {
+      swatchCards.forEach((c) => c.classList.remove('active'));
+      card.classList.add('active');
+
+      const name = card.dataset.name;
+      const finish = card.dataset.finish;
+      const desc = card.dataset.desc;
+      const bg = card.dataset.bg;
+
+      if (previewName) previewName.textContent = name;
+      if (previewMeta) previewMeta.textContent = `${finish} • ${desc}`;
+      if (previewChip && bg) {
+        previewChip.style.background = bg;
+      }
+    });
+  });
+}
+
+/* ── Dynamic Project Gallery ─────────────────────── */
+const dynamicGallery = document.querySelector('[data-gallery-dir]');
+
+if (dynamicGallery) {
+  const dir    = dynamicGallery.dataset.galleryDir.replace(/\/+$/, '');
+  const prefix = dynamicGallery.dataset.galleryPrefix;
+  const ext    = dynamicGallery.dataset.galleryExt || 'jpeg';
+  const max    = Number(dynamicGallery.dataset.galleryMax || 60);
+  const pad    = Number(dynamicGallery.dataset.galleryPad || 2);
+  const label  = dynamicGallery.dataset.galleryLabel || prefix;
+  const missesAllowed = 3;
+
+  // Human-readable descriptions for the photos currently in the folder.
+  // New photos fall back to a generic label automatically.
+  const alts = {
+    residential: {
+      1: "Front elevation of a two-storey residential house with stone cladding, balcony and tiled roof",
+      2: "Gated entrance to a residential villa with stone pillars and driveway",
+      3: "Residential villa with white walls, arched windows and wrought-iron balcony",
+      4: "Stone-clad house front with tall arched windows",
+      5: "Residential house viewed through trees and a wrought-iron fence",
+      6: "Close-up of a white-framed window with garden reflections",
+      7: "Interior French doors and windows beneath a timber ceiling",
+      8: "Terrace with white sliding doors, outdoor seating and a glass roof",
+      9: "Terrace corner with white French doors and wooden posts",
+      10: "Terrace with white French doors and gym equipment",
+      11: "Another view of the terrace with white French doors and wooden posts",
+      12: "Double-height glazed façade of a residential house under construction",
+      13: "Double-height glass wall beneath a timber-clad roof",
+      14: "Interior window below a coffered ceiling",
+      15: "Full-height glazed wall with protective film during installation",
+      16: "Large window overlooking a landscaped garden",
+      17: "Sliding window in a newly finished interior",
+      18: "Black-framed sliding doors in a residential interior",
+      19: "Black-framed sliding doors with a stained-glass fanlight, potted topiary and grey tiled patio",
+    },
+    commercial: {
+      1: 'Curved glass meeting room with bronze frames inside a commercial office fit-out',
+      2: 'Office corridor lined with bronze-framed glass partitions and meeting rooms',
+      3: 'Bronze-framed glass office partitions with a frosted cityscape film',
+      4: 'Another view of the curved glass meeting room with bronze frames and a round table',
+      5: 'White rendered commercial building wrapped in black steel-framed glazing',
+      6: 'Narrow side passage beside black-framed glass walls with paving and lawn',
+      7: 'Elevation of a commercial building with tall black-framed arched glazing',
+      8: 'Long commercial hall with polished marble flooring, chandeliers and full-height glazing',
+      9: 'Side walkway along a black-framed glass wall and landscaped garden',
+      10: 'Corner view of a white commercial building with black steel-framed glass walls',
+    },
+  };
+
+  const photos = [];
+  let index = 1;
+  let misses = 0;
+
+  const renderGallery = () => {
+    const fragment = document.createDocumentFragment();
+
+    photos.forEach(({ src, width, height, number }) => {
+      const alt = (alts[prefix] && alts[prefix][number]) || `${label} project photo ${number}`;
+
+      const link = document.createElement('a');
+      link.className = 'gallery-link';
+      link.href = src;
+      link.setAttribute('aria-label', `View larger: ${alt}`);
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = alt;
+      img.width = width;
+      img.height = height;
+      img.loading = 'lazy';
+
+      link.appendChild(img);
+      fragment.appendChild(link);
+    });
+
+    dynamicGallery.appendChild(fragment);
+    dynamicGallery.setAttribute('aria-busy', 'false');
+  };
+
+  // Probe the folder one numbered file at a time. Numbering must stay
+  // sequential (commercial-01.jpeg, commercial-02.jpeg, ...); probing stops
+  // after three consecutive missing numbers so newly added photos appear
+  // without editing this page.
+  const probeNext = () => {
+    if (index > max || misses >= missesAllowed) {
+      renderGallery();
+      return;
+    }
+
+    const number = index;
+    const src = `${dir}/${prefix}-${String(number).padStart(pad, '0')}.${ext}`;
+    const probe = new Image();
+
+    probe.onload = () => {
+      photos.push({ src, width: probe.naturalWidth, height: probe.naturalHeight, number });
+      misses = 0;
+      index += 1;
+      probeNext();
+    };
+
+    probe.onerror = () => {
+      misses += 1;
+      index += 1;
+      probeNext();
+    };
+
+    probe.src = src;
+  };
+
+  probeNext();
+}
+
+/* ── Photo Lightbox ────────────────────────────────────────── */
+const photoLightbox = document.getElementById('photo-lightbox');
+
+if (photoLightbox) {
+  const lightboxImage   = photoLightbox.querySelector('.lightbox-image');
+  const lightboxCaption = photoLightbox.querySelector('.lightbox-caption');
+  const closeBtn        = photoLightbox.querySelector('.lightbox-close');
+  const prevBtn         = photoLightbox.querySelector('.lightbox-prev');
+  const nextBtn         = photoLightbox.querySelector('.lightbox-next');
+
+  let currentIndex = 0;
+  let lastFocused  = null;
+  let links        = [];
+
+  function currentLinks() {
+    return Array.from(document.querySelectorAll('.project-gallery .gallery-link'));
+  }
+
+  function showPhoto(index) {
+    links = currentLinks();
+    if (!links.length) return;
+
+    currentIndex = (index + links.length) % links.length;
+    const link  = links[currentIndex];
+    const thumb = link.querySelector('img');
+
+    lightboxImage.src = link.getAttribute('href');
+    lightboxImage.alt = thumb ? thumb.alt : '';
+    lightboxCaption.textContent = `${currentIndex + 1} / ${links.length}`;
+  }
+
+  function openPhoto(index, trigger) {
+    lastFocused = trigger || document.activeElement;
+    showPhoto(index);
+    photoLightbox.hidden = false;
+    document.body.classList.add('lightbox-open');
+    closeBtn.focus();
+  }
+
+  function closePhoto() {
+    photoLightbox.hidden = true;
+    document.body.classList.remove('lightbox-open');
+    lightboxImage.removeAttribute('src');
+    if (lastFocused) lastFocused.focus();
+  }
+
+  // Delegated so photos added to the gallery later still open the viewer
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.project-gallery .gallery-link');
+    if (!link) return;
+    e.preventDefault();
+    links = currentLinks();
+    openPhoto(links.indexOf(link), link);
+  });
+
+  closeBtn.addEventListener('click', closePhoto);
+  prevBtn.addEventListener('click', () => showPhoto(currentIndex - 1));
+  nextBtn.addEventListener('click', () => showPhoto(currentIndex + 1));
+
+  // Clicking the dark backdrop (not the image or controls) closes the viewer
+  photoLightbox.addEventListener('click', (e) => {
+    if (e.target === photoLightbox) closePhoto();
+  });
+
+  // Keyboard: Esc closes, arrow keys move between photos, Tab stays inside
+  photoLightbox.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      const controls = [closeBtn, prevBtn, nextBtn];
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      closePhoto();
+    } else if (e.key === 'ArrowLeft') {
+      showPhoto(currentIndex - 1);
+    } else if (e.key === 'ArrowRight') {
+      showPhoto(currentIndex + 1);
+    }
   });
 }
