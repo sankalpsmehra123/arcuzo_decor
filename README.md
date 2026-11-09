@@ -29,7 +29,7 @@ The home page presents two large "Our Work" cards — Residential Projects and C
 
 Both project galleries are generated at runtime from their image folders. `js/main.js` probes `residential-01.jpeg`, `residential-02.jpeg`, … in `assets/images/projects/residential/` and `commercial-01.jpeg`, `commercial-02.jpeg`, … in `assets/images/projects/commercial/`, then renders every match as a gallery tile with the built-in lightbox.
 
-To add a photo, drop it into the matching folder using the next sequential number (for example `residential-20.jpeg` or `commercial-11.jpeg`) and reload the page — no HTML edit is needed. Keep the numbering continuous and use the `.jpeg` extension. Discovery stops after three consecutive missing numbers, so gaps in the sequence will hide later photos. Descriptions for the current photos live in the `alts.residential` and `alts.commercial` maps in `js/main.js`; new photos automatically get a generic "Residential project photo NN" or "Commercial project photo NN" alt text until you add a specific one.
+To add a photo, drop it into the matching folder using the next sequential number (for example `residential-20.jpeg` or `commercial-10.jpeg`) and reload the page — no HTML edit is needed. Keep the numbering continuous and use the `.jpeg` extension. Discovery stops after three consecutive missing numbers, so gaps in the sequence will hide later photos. Descriptions for the current photos live in the `alts.residential` and `alts.commercial` maps in `js/main.js`; new photos automatically get a generic "Residential project photo NN" or "Commercial project photo NN" alt text until you add a specific one.
 
 ---
 
@@ -160,7 +160,7 @@ fetch('https://your-api-endpoint.com/enquiry', {
 
 ## Asset Sources
 
-Most images were supplied by the client from their AlupPure product brochure (shared via WhatsApp). The first eight product-card images under `assets/images/products/` were downloaded from the client's previous Alupure website (alupure.co.in) and resized to 1000px wide. The four newer product images — `shower-enclosure.jpg`, `glass-railing.jpg`, `walkable-skylight.jpg` and `curtain-wall-system.jpg` — are now client-supplied. The remaining sample images under `assets/images/projects/` are temporary generated artwork pending the client's actual project photography (both home page overview cards now use client photos), while `assets/images/projects/residential/` holds the 19 client-supplied photos shown on the residential project page and `assets/images/projects/commercial/` holds the 10 client-supplied photos shown on the commercial project page.
+Most images were supplied by the client from their AlupPure product brochure (shared via WhatsApp). The first eight product-card images under `assets/images/products/` were downloaded from the client's previous Alupure website (alupure.co.in) and resized to 1000px wide. The four newer product images — `shower-enclosure.jpg`, `glass-railing.jpg`, `walkable-skylight.jpg` and `curtain-wall-system.jpg` — are now client-supplied. The remaining sample images under `assets/images/projects/` are temporary generated artwork pending the client's actual project photography (both home page overview cards now use client photos), while `assets/images/projects/residential/` holds the 19 client-supplied photos shown on the residential project page and `assets/images/projects/commercial/` holds the 9 client-supplied photos shown on the commercial project page.
 
 > **Note:** the brochure JPEGs are phone photographs of the printed brochure — several are rotated 90° and include hands, page curl and reflections. They are placeholders until clean source photography is supplied. Thirteen files (`about-brochure`, `clients`, `colour-finishes`, `contact-info`, `features`, `opulenz-specs`, `sliding-specs`, `majestic-specs`, `door-system`, `apc40-windows`, `projects-1`, `opulenz-house`, `sliding-bedroom`) are currently unused.
 
@@ -205,7 +205,7 @@ Most images were supplied by the client from their AlupPure product brochure (sh
 | `assets/images/projects/commercial-business-park.jpg` | Sample placeholder - Business Park (no longer used) |
 | `assets/images/projects/commercial-retail-pavilion.jpg` | Sample placeholder - Retail Pavilion (no longer used) |
 | `assets/images/projects/commercial-hotel-atrium.jpg` | Sample placeholder - Hotel Atrium (no longer used) |
-| `assets/images/projects/commercial/` | 10 client-supplied commercial project photos, named `commercial-01.jpeg`…`commercial-10.jpeg` (auto-discovered by the gallery on `commercialproject.html`; `commercial-03.jpeg` also used for the home page Commercial Projects card) |
+| `assets/images/projects/commercial/` | 9 client-supplied commercial project photos, named `commercial-01.jpeg`…`commercial-09.jpeg` (auto-discovered by the gallery on `commercialproject.html`; `commercial-03.jpeg` also used for the home page Commercial Projects card) |
 | `assets/images/logo/arcuzo-logo-light.png` | White transparent brand logo (header, footer and other dark backgrounds) |
 | `assets/images/logo/arcuzo-logo-dark.png` | Black transparent brand logo (favicon and light backgrounds) |
 | `assets/video/hero-reel.mp4` | Brand video reel (currently unused) |
