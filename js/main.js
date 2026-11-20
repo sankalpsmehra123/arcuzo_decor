@@ -156,6 +156,12 @@ function validateField(field) {
     return false;
   }
 
+  // Length check
+  if (field.maxLength > 0 && value.length > field.maxLength) {
+    showFieldError(field, `Must be ${field.maxLength} characters or less.`);
+    return false;
+  }
+
   // Email format
   if (name === 'field-email' && value !== '') {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -193,12 +199,70 @@ if (enquiryForm) {
   });
 }
 
+/* ── Form Notice Helper ──────────────────────────────────────── */
+function showFormNotice(type, title, message) {
+  if (!formNotice) return;
+
+  formNotice.classList.remove('success', 'error', 'warning');
+  if (type) formNotice.classList.add(type);
+
+  let iconSvg = '';
+  if (type === 'success') {
+    iconSvg = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  } else if (type === 'error') {
+    iconSvg = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M7 7l6 6M13 7l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  } else {
+    iconSvg = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="6" x2="10" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="14" r="1" fill="currentColor"/></svg>';
+  }
+
+  // Safe DOM construction to prevent XSS
+  formNotice.textContent = '';
+
+  const iconSpan = document.createElement('span');
+  iconSpan.setAttribute('aria-hidden', 'true');
+  iconSpan.innerHTML = iconSvg; // Safe: hardcoded static SVGs above
+
+  const p = document.createElement('p');
+  const strong = document.createElement('strong');
+  strong.textContent = title;
+  p.appendChild(strong);
+
+  if (message) {
+    p.appendChild(document.createTextNode(' — ' + message));
+  }
+
+  formNotice.appendChild(iconSpan);
+  formNotice.appendChild(p);
+  formNotice.hidden = false;
+  formNotice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  formNotice.focus();
+}
+
 /* ── Form Submission ─────────────────────────────────────────── */
 if (enquiryForm) {
+  let lastSubmitTime = 0;
+  const SUBMIT_COOLDOWN_MS = 10000; // 10-second anti-spam cooldown
+
   enquiryForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    // Validate all required fields
+    // 1. Honeypot check (catches automated spambots)
+    const honeypot = enquiryForm.querySelector('input[name="website"]');
+    if (honeypot && honeypot.value.trim() !== '') {
+      enquiryForm.reset();
+      showFormNotice('success', 'Enquiry Sent Successfully!', 'Thank you for reaching out.');
+      return;
+    }
+
+    // 2. Cooldown check (rate limiting)
+    const now = Date.now();
+    if (now - lastSubmitTime < SUBMIT_COOLDOWN_MS) {
+      const waitSec = Math.ceil((SUBMIT_COOLDOWN_MS - (now - lastSubmitTime)) / 1000);
+      showFormNotice('warning', 'Please wait', `You can send another enquiry in ${waitSec} second(s).`);
+      return;
+    }
+
+    // 3. Validate all required fields
     const fieldsToValidate = enquiryForm.querySelectorAll(
       'input[required], select[required], textarea[required]'
     );
@@ -221,37 +285,94 @@ if (enquiryForm) {
       return;
     }
 
-    // ── TODO: Replace this block with your backend endpoint ──────────────────
-    // When a form backend is available (e.g. Netlify Forms, Formspree, custom API):
-    //
-    // 1. Add `action="YOUR_ENDPOINT_URL"` and `method="POST"` to the <form> tag,
-    //    OR use fetch() here as shown below:
-    //
-    //   const formData = new FormData(enquiryForm);
-    //   fetch('YOUR_ENDPOINT_URL', {
-    //     method: 'POST',
-    //     body: formData,
-    //   })
-    //   .then(res => { if (!res.ok) throw new Error('Network error'); return res.json(); })
-    //   .then(() => {
-    //     // Show success message, reset form
-    //   })
-    //   .catch(() => {
-    //     // Show error message
-    //   });
-    //
-    // 2. For Netlify: add data-netlify="true" attribute to <form>.
-    //    Add a hidden input: <input type="hidden" name="form-name" value="enquiry" />
-    //
-    // 3. For Formspree: set action="https://formspree.io/f/YOUR_FORM_ID" method="POST"
-    //
-    // Until a backend is configured, the notice below is shown.
-    // ── END TODO ─────────────────────────────────────────────────────────────
+    // 4. Validate script URL
+    const scriptURL = (typeof FORM_CONFIG !== 'undefined' && FORM_CONFIG.scriptURL)
+      ? FORM_CONFIG.scriptURL.trim()
+      : '';
 
-    // Show the "not yet enabled" notice (do NOT clear form data)
-    formNotice.hidden = false;
-    formNotice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    formNotice.focus();
+    if (!scriptURL || scriptURL.includes('YOUR_GOOGLE_APPS_SCRIPT_URL')) {
+      showFormNotice(
+        'warning',
+        'Google Apps Script URL Not Set',
+        'Please paste your deployed Web App URL into js/form-config.js to start receiving enquiries.'
+      );
+      return;
+    }
+
+    if (!scriptURL.startsWith('https://script.google.com/macros/s/')) {
+      showFormNotice(
+        'error',
+        'Invalid Configuration',
+        'The Web App URL must begin with https://script.google.com/macros/s/.'
+      );
+      return;
+    }
+
+    const submitBtn = enquiryForm.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn ? submitBtn.textContent : 'Send Enquiry';
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending Enquiry...';
+    }
+
+    // Hide any previous notice
+    if (formNotice) formNotice.hidden = true;
+
+    // Prepare form data
+    const formData = new FormData(enquiryForm);
+
+    // Format product name with readable label
+    const productSelect = document.getElementById('field-product');
+    if (productSelect && productSelect.selectedIndex >= 0) {
+      const selectedOption = productSelect.options[productSelect.selectedIndex];
+      if (selectedOption && selectedOption.value) {
+        formData.set('product', selectedOption.text.trim());
+      }
+    }
+
+    // Ensure message is explicitly trimmed and included
+    const messageField = document.getElementById('field-message');
+    if (messageField) {
+      formData.set('message', messageField.value.trim());
+    }
+
+    // Send data to Google Apps Script Web App
+    fetch(scriptURL, {
+      method: 'POST',
+      body: formData,
+    })
+      .then((res) => res.json().catch(() => ({ result: 'success' })))
+      .then((data) => {
+        if (data && data.result === 'error') {
+          throw new Error(data.message || 'Script returned an error');
+        }
+
+        // Record submission timestamp for rate limiting
+        lastSubmitTime = Date.now();
+
+        // Reset form and display success alert
+        enquiryForm.reset();
+        showFormNotice(
+          'success',
+          'Enquiry Sent Successfully!',
+          'Thank you for reaching out. We have received your details and will get in touch with you shortly.'
+        );
+      })
+      .catch((err) => {
+        console.error('Form submission error:', err);
+        showFormNotice(
+          'error',
+          'Could not send enquiry.',
+          'Please try again, or contact us directly via WhatsApp or phone.'
+        );
+      })
+      .finally(() => {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
+      });
   });
 }
 

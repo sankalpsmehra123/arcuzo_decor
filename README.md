@@ -90,69 +90,26 @@ Select the project root when prompted. No framework preset needed.
 
 ## Connecting a Form Backend
 
-The enquiry form currently displays a notice that form submissions are not yet enabled. When you are ready to accept submissions, follow one of these approaches:
+The enquiry form uses a serverless Google Apps Script Web App + Google Sheet integration, sending instant email notifications to `sankalpsmehra123@gmail.com` with zero backend server overhead (ideal for GoDaddy, Netlify, or static hosting).
 
-### Option A – Netlify Forms (easiest)
+### Google Apps Script (Connected)
 
-1. Add `data-netlify="true"` and `name="enquiry"` to the `<form>` tag in `index.html`:
-
-   ```html
-   <form id="enquiry-form" data-netlify="true" name="enquiry" ...>
+1. Open your Google Sheet and navigate to **Extensions → Apps Script**.
+2. Paste the Apps Script code (configured with your email and subject prefix).
+3. Click **Deploy → New deployment**.
+4. Set type to **Web app**:
+   - **Execute as:** `Me`
+   - **Who has access:** `Anyone`
+5. Copy the generated Web App URL (`https://script.google.com/macros/s/.../exec`).
+6. Paste the URL into `js/form-config.js`:
+   ```javascript
+   const FORM_CONFIG = {
+     scriptURL: 'https://script.google.com/macros/s/.../exec',
+     recipientEmail: 'sankalpsmehra123@gmail.com',
+     subjectPrefix: 'Arcuzo Decor - New Enquiry: '
+   };
    ```
-
-2. Add a hidden field inside the form:
-
-   ```html
-   <input type="hidden" name="form-name" value="enquiry" />
-   ```
-
-3. Remove the "TODO" block in `js/main.js` and delete the `formNotice.hidden = false;` line. Netlify handles submission natively.
-
-4. Redeploy to Netlify — submissions will appear in your Netlify dashboard and can be forwarded to an email address.
-
-### Option B – Formspree
-
-1. Create a free account at [formspree.io](https://formspree.io) and create a new form.
-2. Add your endpoint to the `<form>` tag:
-
-   ```html
-   <form id="enquiry-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" ...>
-   ```
-
-3. In `js/main.js`, replace the TODO block with a `fetch()` POST call or simply allow the native form submit (remove `e.preventDefault()`).
-
-### Option C – Custom backend / API
-
-In `js/main.js`, locate the comment:
-
-```js
-// ── TODO: Replace this block with your backend endpoint ──────────────────
-```
-
-Replace the block that follows with a `fetch()` call:
-
-```js
-const formData = new FormData(enquiryForm);
-
-fetch('https://your-api-endpoint.com/enquiry', {
-  method: 'POST',
-  body: formData,
-})
-.then((res) => {
-  if (!res.ok) throw new Error('Network response was not ok');
-  return res.json();
-})
-.then(() => {
-  // Show a success message, optionally reset the form
-  enquiryForm.reset();
-  formNotice.innerHTML = '<p>✔ Thank you! We'll be in touch shortly.</p>';
-  formNotice.hidden = false;
-})
-.catch(() => {
-  formNotice.innerHTML = '<p>Something went wrong. Please call us directly.</p>';
-  formNotice.hidden = false;
-});
-```
+7. When visitors submit the form, every enquiry is automatically logged in your Google Sheet and an email notification is delivered to your inbox.
 
 ---
 

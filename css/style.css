@@ -24,7 +24,7 @@
   --radius-md:  8px;
   --radius-lg:  16px;
   --transition: 0.25s ease;
-  --header-h:   72px;
+  --header-h:   84px;
 }
 
 /* ── Reset ──────────────────────────────────────────────────── */
@@ -260,7 +260,7 @@ p + p { margin-top: 0.75rem; }
 
 .logo-img {
   display: block;
-  height: 52px;
+  height: 68px;
   width: auto;
 }
 
@@ -1794,6 +1794,7 @@ a.client-card:focus-visible {
   border-radius: var(--radius-sm);
   padding: 1rem;
   color: #7a5a00;
+  transition: all var(--transition);
 }
 
 .form-notice[hidden] { display: none; }
@@ -1804,7 +1805,33 @@ a.client-card:focus-visible {
   margin-top: 2px;
 }
 
+.form-notice.success {
+  background: #edf7ed;
+  border-color: #81c784;
+  color: #1b5e20;
+}
+
+.form-notice.success svg {
+  color: #2e7d32;
+}
+
+.form-notice.error {
+  background: #fdeeed;
+  border-color: #e57373;
+  color: #b71c1c;
+}
+
+.form-notice.error svg {
+  color: #c62828;
+}
+
 .form-notice p { font-size: 0.9rem; line-height: 1.5; }
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
 .form-privacy {
   font-size: 0.8rem;
@@ -1982,10 +2009,10 @@ a.client-card:focus-visible {
 
 /* ── RESPONSIVE – 768px ─────────────────────────────────────── */
 @media (max-width: 768px) {
-  :root { --header-h: 64px; }
+  :root { --header-h: 72px; }
 
   /* Header / Nav */
-  .logo-img { height: 44px; }
+  .logo-img { height: 56px; }
 
   .hamburger { display: flex; }
 
